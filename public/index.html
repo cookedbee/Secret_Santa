@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Secret Santa Wishlists</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Mountains+of+Christmas:wght@700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root{
+  --pine:#0f3d2e; --pine-deep:#082a1f; --berry:#b3202e; --berry-dark:#8a1622;
+  --gold:#e8b94a; --paper:#fbf4e4; --ink:#2b2a33; --snow:#ffffff;
+  --display:'Mountains of Christmas','Georgia',serif;
+  --hand:'Caveat','Segoe Script','Bradley Hand',cursive;
+  --body:'Lora','Georgia',serif;
+  box-sizing:border-box; color-scheme:dark;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;font-family:var(--body);color:var(--snow);
+  background:radial-gradient(ellipse at 50% 0%,#17604a 0%,var(--pine) 45%,var(--pine-deep) 100%) fixed;
+  overflow-x:hidden}
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.lights{position:relative;height:46px;z-index:2;
+  background:
+   radial-gradient(circle at 50% 0,transparent 21px,transparent 22px);
+}
+.lights::before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:#0a1f17}
+.bulbs{display:flex;justify-content:space-around;position:absolute;left:0;right:0;top:6px;padding:0 4px;margin:0;list-style:none}
+.bulbs li{width:14px;height:22px;border-radius:50% 50% 50% 50%/40% 40% 60% 60%;margin-top:2px;
+  background:var(--c);box-shadow:0 0 14px 4px var(--c);animation:glow 2.4s ease-in-out infinite;animation-delay:var(--d)}
+.bulbs li::before{content:"";display:block;width:6px;height:5px;background:#0a1f17;margin:-4px auto 0;border-radius:1px}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.45}}
+main{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:18px 20px 60px}
+h1{font-family:var(--display);font-size:clamp(2.2rem,8vw,4rem);margin:10px 0 6px;text-align:center;color:var(--snow);
+  text-shadow:0 3px 0 var(--berry),0 6px 18px rgba(0,0,0,.4);line-height:1.1}
+.sub{text-align:center;font-style:italic;color:#d9ecd9;margin:0 auto 30px;max-width:30rem;line-height:1.5}
+.budget{display:block;width:max-content;max-width:100%;margin:-12px auto 30px;padding:8px 20px;border-radius:999px;background:var(--gold);color:#3a2a05;font-family:var(--hand);font-weight:700;font-size:1.5rem;box-shadow:0 4px 12px rgba(0,0,0,.35);transform:rotate(-1.5deg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:34px 26px;list-style:none;padding:0;margin:0}
+
+/* envelope */
+.env{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;perspective:900px;-webkit-tap-highlight-color:transparent}
+.env:focus-visible .env-body{outline:3px solid var(--gold);outline-offset:4px}
+.env-body{position:relative;height:170px;border-radius:6px;background:#2a7d4f;
+  box-shadow:0 10px 24px rgba(0,0,0,.45);transition:transform .25s ease}
+.env:hover .env-body{transform:translateY(-6px) rotate(-1deg)}
+.env:nth-child(even):hover .env-body{transform:translateY(-6px) rotate(1deg)}
+.env-body::before{content:"";position:absolute;inset:0;border-radius:6px;z-index:2;
+  background:linear-gradient(135deg,transparent 49.4%,rgba(0,0,0,.12) 50%,transparent 50.6%) 0 0/50% 100% no-repeat,
+             linear-gradient(225deg,transparent 49.4%,rgba(0,0,0,.12) 50%,transparent 50.6%) 100% 0/50% 100% no-repeat}
+.env.red .env-body{background:var(--berry)}
+.env.red .name{color:#000}
+.flap{position:absolute;left:0;right:0;top:0;height:92px;z-index:4;transform-origin:top;
+  transition:transform .6s ease .1s;background:#1f6a41;clip-path:polygon(0 0,100% 0,50% 100%);
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.env.red .flap{background:var(--berry-dark)}
+.env.open .flap{transform:rotateX(180deg);z-index:1}
+.seal{position:absolute;left:50%;top:70px;width:38px;height:38px;margin-left:-19px;border-radius:50%;z-index:5;
+  background:radial-gradient(circle at 35% 30%,#f2d27a,var(--gold) 60%,#b98a22);
+  box-shadow:0 2px 5px rgba(0,0,0,.4);display:grid;place-items:center;font-size:18px;transition:opacity .3s}
+.env.open .seal{opacity:0}
+.name{position:absolute;left:0;right:0;bottom:16px;z-index:3;text-align:center;font-family:var(--hand);
+  font-weight:700;font-size:2.3rem;color:#000;text-shadow:0 1px 0 rgba(255,255,255,.35);line-height:1}
+.stamp{position:absolute;right:12px;top:12px;z-index:3;width:30px;height:36px;border:2px dashed rgba(255,255,255,.55);
+  border-radius:2px;display:grid;place-items:center;font-size:16px}
+.env.red .stamp{border-color:rgba(255,255,255,.5)}
+.peek{position:absolute;left:12px;right:12px;top:10px;height:130px;background:#fff;border-radius:4px;z-index:1;
+  transition:transform .7s ease .35s}
+.env.open .peek{transform:translateY(-70px)}
+
+/* letter page */
+.letter-wrap{position:relative;z-index:1;max-width:620px;margin:0 auto;padding:8px 16px 70px;animation:unfold .7s ease both;transform-origin:top center}
+@keyframes unfold{from{opacity:0;transform:translateY(40px) scaleY(.6)}to{opacity:1;transform:none}}
+.back{font-family:var(--body);font-size:1rem;color:var(--snow);background:none;border:2px solid rgba(255,255,255,.5);
+  border-radius:999px;padding:9px 18px;cursor:pointer;margin:6px 0 18px}
+.back:hover{background:rgba(255,255,255,.12)}
+.back:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.paper{background:var(--paper);color:var(--ink);border-radius:4px;padding:34px 30px 40px 44px;position:relative;
+  box-shadow:0 18px 40px rgba(0,0,0,.5);
+  background-image:repeating-linear-gradient(transparent 0 37px,#d7cbb0 37px 38px);background-position:0 20px}
+.paper::before{content:"";position:absolute;left:34px;top:0;bottom:0;width:2px;background:rgba(179,32,46,.35)}
+.paper h2{font-family:var(--display);color:var(--berry);font-size:2.2rem;margin:0 0 8px;line-height:1.1}
+.paper p,.paper li{font-family:var(--hand);font-size:1.6rem;line-height:38px;margin:0}
+.paper ul{list-style:none;padding:0;margin:0}
+.paper li{padding-left:34px;position:relative}
+.paper li::before{content:"🎁";position:absolute;left:0;font-size:1.2rem}
+.sign{margin-top:38px!important;text-align:right}
+.holly{position:absolute;right:16px;top:-18px;font-size:2.4rem}
+
+.bar{display:flex;gap:10px;flex-wrap:wrap}
+.live{animation:none}
+.back.save{background:var(--gold);color:#3a2a05;border-color:var(--gold);font-weight:600}
+.back:disabled{opacity:.6;cursor:default}
+.paper{min-height:420px}
+.paper .hint{font-size:1.2rem;color:#6b5b4b}
+.paper textarea{width:100%;font-family:var(--hand);font-size:1.5rem;line-height:38px;color:var(--ink);
+  background:rgba(255,255,255,.7);border:2px dashed var(--berry);border-radius:6px;padding:6px 10px;resize:vertical}
+.paper textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* add a person (new) */
+.add-wrap{display:flex;flex-direction:column;align-items:center;margin-top:34px}
+.add-wrap .back{margin:0}
+.add-form{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+.add-form .back{margin:0}
+.add-form input{font-family:var(--hand);font-size:1.6rem;color:var(--ink);background:var(--paper);border:2px dashed var(--berry);
+  border-radius:6px;padding:4px 12px;width:min(260px,100%)}
+.add-form input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.add-msg{font-family:var(--hand);font-size:1.4rem;color:var(--gold);margin:8px 0 0;min-height:1.4em;text-align:center}
+@media (max-width:520px){.paper{padding:26px 18px 34px 34px}.paper::before{left:24px}.paper p,.paper li{font-size:1.4rem}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important;transition-delay:0s!important}}
+</style>
+</head>
+<body>
+<canvas id="snow" aria-hidden="true"></canvas>
+<div class="lights" aria-hidden="true"><ul class="bulbs" id="bulbs"></ul></div>
+<main id="app"></main>
+
+<script>
+/* Friends are stored on the server (data.json). Use the "Add a person" button on the home page to add more. */
+var FRIENDS=[];
+
+var app=document.getElementById('app');
+function slug(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+var adding=false;
+function home(){
+  adding=false;
+  var h='<h1>Secret Santa Wishlists</h1><p class="sub">Pick an envelope to see what your person is hoping for this Christmas.</p><span class="budget">Gift budget: $50 🎁</span><ul class="grid">';
+  FRIENDS.forEach(function(f,i){
+    h+='<li><button class="env '+(i%2?'':'red')+'" data-id="'+slug(f.name)+'" aria-label="Open '+esc(f.name)+'’s letter">'+
+      '<div class="env-body"><div class="peek"></div><div class="stamp">🎄</div><div class="flap"></div><div class="seal">❄️</div>'+
+      '<div class="name">'+esc(f.name)+'</div></div></button></li>';
+  });
+  app.innerHTML=h+'</ul><div class="add-wrap" id="addwrap"><button class="back" id="addbtn">➕ Add a person</button></div>';
+  var btns=app.querySelectorAll('.env');
+  for(var i=0;i<btns.length;i++)btns[i].addEventListener('click',openEnv);
+  document.getElementById('addbtn').addEventListener('click',showAddForm);
+}
+function showAddForm(){
+  adding=true;
+  var w=document.getElementById('addwrap');
+  w.innerHTML='<div class="add-form"><input id="newname" maxlength="20" placeholder="Friend’s name" aria-label="Friend’s name" autocomplete="off">'+
+    '<button class="back save" id="addgo">Add envelope</button><button class="back" id="addcancel">Cancel</button></div>'+
+    '<p class="add-msg" id="addmsg" role="status"></p>';
+  var inp=document.getElementById('newname');inp.focus();
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter')addPerson()});
+  document.getElementById('addgo').addEventListener('click',addPerson);
+  document.getElementById('addcancel').addEventListener('click',home);
+}
+function addPerson(){
+  var name=document.getElementById('newname').value.trim(),msg=document.getElementById('addmsg'),btn=document.getElementById('addgo');
+  if(!name){msg.textContent='Type a name first.';return}
+  btn.disabled=true;msg.textContent='Adding…';
+  fetch('/api/people',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name})})
+    .then(function(r){return r.json().then(function(d){return{ok:r.ok,d:d}})})
+    .then(function(x){
+      if(!x.ok){btn.disabled=false;msg.textContent=x.d.error||'Couldn’t add that name.';return}
+      FRIENDS.push(x.d.person);home();
+    }).catch(function(){btn.disabled=false;msg.textContent='Couldn’t reach the server.'});
+}
+function openEnv(e){
+  var b=e.currentTarget; if(b.classList.contains('open'))return;
+  b.classList.add('open');
+  var id=b.getAttribute('data-id');
+  setTimeout(function(){location.hash=id},1100);
+}
+var editing=false;
+function wishesFor(f){return Array.isArray(f.wishes)?f.wishes:[]}
+function letter(f,live){
+  editing=false;
+  var items=wishesFor(f).map(function(w){return'<li>'+esc(w)+'</li>'}).join('');
+  app.innerHTML='<div class="letter-wrap'+(live?' live':'')+'"><div class="bar"><button class="back" id="back">‹ Back to envelopes</button>'+
+   '<button class="back" id="edit">✏️ Edit letter</button></div>'+
+   '<article class="paper"><span class="holly" aria-hidden="true">🎄</span><h2>'+esc(f.name)+'’s Christmas wishlist</h2>'+
+   '<ul>'+items+'</ul></article></div>';
+  document.getElementById('back').addEventListener('click',function(){location.hash=''});
+  document.getElementById('edit').addEventListener('click',function(){letterEdit(f)});
+  if(!live)window.scrollTo(0,0);
+}
+function letterEdit(f){
+  editing=true;
+  app.innerHTML='<div class="letter-wrap live"><div class="bar"><button class="back" id="cancel">Cancel</button><button class="back save" id="save">Save letter</button></div>'+
+   '<article class="paper"><h2>Edit '+esc(f.name)+'’s letter</h2><p class="hint">One wish per line.</p>'+
+   '<textarea id="wl" rows="8" aria-label="Wishes, one per line">'+esc(wishesFor(f).join('\n'))+'</textarea><p class="hint" id="msg" role="status"></p></article></div>';
+  document.getElementById('cancel').addEventListener('click',function(){letter(f,true)});
+  document.getElementById('save').addEventListener('click',function(){
+    var lines=document.getElementById('wl').value.split('\n').map(function(l){return l.trim()}).filter(Boolean).slice(0,30);
+    var btn=this,msg=document.getElementById('msg');btn.disabled=true;msg.textContent='Saving…';
+    fetch('/api/people/'+slug(f.name),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({wishes:lines})})
+      .then(function(r){if(!r.ok)throw 0;return r.json()})
+      .then(function(d){f.wishes=d.person.wishes;letter(f,true)})
+      .catch(function(){btn.disabled=false;msg.textContent='Couldn’t save. Please try again.'});
+  });
+}
+function refresh(){
+  if(editing)return;
+  var id=location.hash.replace('#','');
+  var f=FRIENDS.filter(function(x){return slug(x.name)===id})[0];
+  if(f)letter(f,true);
+}
+function route(){
+  var id=location.hash.replace('#','');
+  var f=FRIENDS.filter(function(x){return slug(x.name)===id})[0];
+  f?letter(f):home();
+}
+window.addEventListener('hashchange',route);
+
+/* load from the server, then keep everyone in sync every few seconds */
+var lastJson='';
+function load(first){
+  return fetch('/api/people',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){
+    var j=JSON.stringify(d.people);
+    if(j===lastJson)return;
+    lastJson=j;FRIENDS=d.people;
+    if(first)return route();
+    if(editing||adding)return;
+    var id=location.hash.replace('#','');
+    if(id)refresh();else if(!app.querySelector('.env.open'))home();
+  });
+}
+load(true).catch(function(){app.innerHTML='<h1>Secret Santa Wishlists</h1><p class="sub">Couldn’t reach the server. Make sure it’s running, then refresh.</p>'});
+setInterval(function(){load(false).catch(function(){})},5000);
+
+/* string lights */
+(function(){
+  var cols=['#ff4d4d','#ffd34d','#4dff88','#4da6ff'],ul=document.getElementById('bulbs'),n=Math.max(10,Math.floor(innerWidth/48)),h='';
+  for(var i=0;i<n;i++)h+='<li style="--c:'+cols[i%4]+';--d:'+(i%5)*0.5+'s"></li>';
+  ul.innerHTML=h;
+})();
+
+/* snow */
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var c=document.getElementById('snow'),x=c.getContext('2d'),W,H,flakes=[];
+  function size(){W=c.width=innerWidth;H=c.height=innerHeight}
+  size();addEventListener('resize',size);
+  for(var i=0;i<70;i++)flakes.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2.6+.8,s:Math.random()*.8+.4,d:Math.random()*6});
+  var t=0;
+  (function frame(){
+    t+=.01;x.clearRect(0,0,W,H);x.fillStyle='rgba(255,255,255,.85)';
+    flakes.forEach(function(f){
+      f.y+=f.s;f.x+=Math.sin(t+f.d)*.4;
+      if(f.y>H){f.y=-5;f.x=Math.random()*W}
+      x.beginPath();x.arc(f.x,f.y,f.r,0,6.283);x.fill();
+    });
+    requestAnimationFrame(frame);
+  })();
+})();
+</script>
+</body>
+</html>
