@@ -106,6 +106,9 @@ h1{font-family:var(--display);font-size:clamp(2.2rem,8vw,4rem);margin:10px 0 6px
   border-radius:6px;padding:4px 12px;width:min(260px,100%)}
 .add-form input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .add-msg{font-family:var(--hand);font-size:1.4rem;color:var(--gold);margin:8px 0 0;min-height:1.4em;text-align:center}
+.back.danger{border-color:#ff9a9a;color:#ffd6d6}
+.back.danger:hover{background:rgba(255,80,80,.25)}
+.confirm-msg{font-family:var(--hand);font-size:1.5rem;color:var(--snow);align-self:center;margin:6px 0 18px}
 @media (max-width:520px){.paper{padding:26px 18px 34px 34px}.paper::before{left:24px}.paper p,.paper li{font-size:1.4rem}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important;transition-delay:0s!important}}
 </style>
@@ -171,11 +174,12 @@ function letter(f,live){
   editing=false;
   var items=wishesFor(f).map(function(w){return'<li>'+esc(w)+'</li>'}).join('');
   app.innerHTML='<div class="letter-wrap'+(live?' live':'')+'"><div class="bar"><button class="back" id="back">‹ Back to envelopes</button>'+
-   '<button class="back" id="edit">✏️ Edit letter</button></div>'+
+   '<button class="back" id="edit">✏️ Edit letter</button><button class="back danger" id="del">🗑 Delete</button></div>'+
    '<article class="paper"><span class="holly" aria-hidden="true">🎄</span><h2>'+esc(f.name)+'’s Christmas wishlist</h2>'+
    '<ul>'+items+'</ul></article></div>';
   document.getElementById('back').addEventListener('click',function(){location.hash=''});
   document.getElementById('edit').addEventListener('click',function(){letterEdit(f)});
+  document.getElementById('del').addEventListener('click',function(){confirmDelete(f)});
   if(!live)window.scrollTo(0,0);
 }
 function letterEdit(f){
@@ -193,11 +197,24 @@ function letterEdit(f){
       .catch(function(){btn.disabled=false;msg.textContent='Couldn’t save. Please try again.'});
   });
 }
+function confirmDelete(f){
+  editing=true;
+  var bar=app.querySelector('.bar');
+  bar.innerHTML='<span class="confirm-msg" id="cmsg">Delete '+esc(f.name)+' and their letter?</span><button class="back danger" id="yes">Yes, delete</button><button class="back" id="no">Cancel</button>';
+  document.getElementById('no').addEventListener('click',function(){letter(f,true)});
+  document.getElementById('yes').addEventListener('click',function(){
+    var btn=this,msg=document.getElementById('cmsg');btn.disabled=true;msg.textContent='Deleting…';
+    fetch('/api/people/'+slug(f.name),{method:'DELETE'}).then(function(r){if(!r.ok)throw 0}).then(function(){
+      FRIENDS=FRIENDS.filter(function(x){return slug(x.name)!==slug(f.name)});
+      editing=false;location.hash='';
+    }).catch(function(){btn.disabled=false;msg.textContent='Couldn’t delete. Please try again.'});
+  });
+}
 function refresh(){
   if(editing)return;
   var id=location.hash.replace('#','');
   var f=FRIENDS.filter(function(x){return slug(x.name)===id})[0];
-  if(f)letter(f,true);
+  if(f)letter(f,true);else location.hash='';
 }
 function route(){
   var id=location.hash.replace('#','');
